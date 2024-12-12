@@ -24,12 +24,12 @@ Route::prefix('v1')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/register/member', [AuthController::class, 'registerMember']);
         Route::post('/login/member', [AuthController::class, 'loginMember']);
-        Route::post('/logout', [AuthController::class, 'logout']);
     });
 
     // doesnt have limited but need token 
     // protected route
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/profile', [UserController::class, 'show']);
         Route::get('/profile/member', [UserController::class, 'showMember']);
         Route::post('/profile/update', [UserController::class, 'update']);
