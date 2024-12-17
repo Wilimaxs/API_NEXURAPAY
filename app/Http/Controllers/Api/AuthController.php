@@ -81,7 +81,7 @@ class AuthController extends Controller
             if (isset($selfiePath)) Storage::disk('public')->delete($selfiePath);
 
             // return respose or resouce
-            return new AuthResource(true, 'Registrasi Gagal', null, $e->getMessage());
+            return new AuthResource(false, 'Registrasi Gagal', null, $e->getMessage());
         }
     }
 

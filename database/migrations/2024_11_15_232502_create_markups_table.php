@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('markups_prabayar', function (Blueprint $table) {
+        Schema::create('markup_prabayars', function (Blueprint $table) {
             $table->id();
             $table->string('kode');
             $table->integer('markup');
             $table->timestamps();
         });
 
-        Schema::create('markups_pascabayar', function (Blueprint $table) {
+        Schema::create('markup_pascabayars', function (Blueprint $table) {
             $table->id();
             $table->string('kode');
             $table->integer('markup');

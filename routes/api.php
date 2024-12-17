@@ -43,5 +43,5 @@ Route::prefix('v1')->group(function () {
         Route::post('/products/markup/prabayar', [MarkupController::class, 'updatePrabayar']);
         Route::post('/products/markup/pascabayar', [MarkupController::class, 'updatePascabayar']);
     });
-    Route::post('callback/tripay', [TrxController::class, 'handleCallback']);
+    Route::post('callback', [TrxController::class, 'handle']);
 });

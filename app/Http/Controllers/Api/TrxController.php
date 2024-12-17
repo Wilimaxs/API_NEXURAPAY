@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Callback;
 use Exception;
 
+
 class TrxController extends Controller
 {
     /**
@@ -159,6 +160,95 @@ class TrxController extends Controller
             return response()->json([
                 'error' => 'Internal Server Error',
                 'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function handle(Request $request)
+    {
+        try {
+            // Buat folder logs jika belum ada
+            if (!file_exists(storage_path('logs'))) {
+                mkdir(storage_path('logs'), 0777, true);
+            }
+
+            // Debug payload
+            Log::info('Tripay Request Headers:', $request->headers->all());
+            Log::info('Tripay Raw Content:', ['content' => $request->getContent()]);
+
+            // Validate secret
+            $secret = env('TRIPAY_CALLBACK_SECRET');
+            $incomingSecret = $request->header('X-Callback-Secret');
+
+            Log::info('Secret Check:', [
+                'incoming' => $incomingSecret,
+                'expected' => $secret
+            ]);
+
+            if (empty($incomingSecret) || !hash_equals($secret, $incomingSecret)) {
+                Log::warning('Invalid Secret Received');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid Secret'
+                ], 403);
+            }
+
+            // Parse JSON dengan error handling yang lebih detail
+            $content = $request->getContent();
+            Log::info('Raw Content:', ['content' => $content]);
+
+            try {
+                $data = json_decode($content, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new Exception('JSON decode error: ' . json_last_error_msg());
+                }
+            } catch (\Exception $e) {
+                Log::error('JSON Parse Error: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid JSON payload: ' . $e->getMessage()
+                ], 400);
+            }
+
+            Log::info('Parsed Data:', $data);
+
+            // Find transaction
+            $transaction = Transaction::where('id', $data['api_trxid'] ?? null)->first();
+            if (!$transaction) {
+                Log::warning('Transaction not found:', ['api_trxid' => $data['api_trxid'] ?? null]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Transaction not found'
+                ], 404);
+            }
+
+            // Update status
+            $status = match ($data['status'] ?? '0') {
+                '1' => 'success',
+                '2' => 'failed',
+                default => 'pending'
+            };
+
+            Log::info('Updating transaction:', [
+                'id' => $transaction->id,
+                'old_status' => $transaction->status,
+                'new_status' => $status
+            ]);
+
+            $transaction->update(['status' => $status]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            Log::error('Tripay Callback Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal Server Error: ' . $e->getMessage()
             ], 500);
         }
     }
