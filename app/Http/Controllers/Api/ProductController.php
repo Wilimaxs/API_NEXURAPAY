@@ -36,7 +36,7 @@ class ProductController extends Controller
 
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' =>  'Bearer' . env('TRIPAY_API_KEY'),
+                'Authorization' =>  'Bearer ' . $this->apiKey,
             ])->get('https://tripay.id/api/v2/pembelian/produk?' . http_build_query($payload));
 
             if ($response->successful()) {
@@ -89,7 +89,7 @@ class ProductController extends Controller
             ];
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer' . env('TRIPAY_API_KEY'),
+                'Authorization' => 'Bearer ' . $this->apiKey,
             ])->get('https://tripay.id/api/v2/pembayaran/produk?' . http_build_query($payload));
 
             if ($response->successful()) {
@@ -141,10 +141,10 @@ class ProductController extends Controller
 
             // Query produk prabayar dengan kondisi opsional
             // Query menggunakan Query Builder
-            $produkPrabayar = product_prabayar::leftJoin('markups_prabayar', 'product_prabayars.product_code', '=', 'markups_prabayar.kode')
+            $produkPrabayar = product_prabayar::leftJoin('markup_prabayars', 'product_prabayars.product_code', '=', 'markup_prabayars.kode')
                 ->select(
                     'product_prabayars.*',
-                    DB::raw('COALESCE(product_prabayars.price + markups_prabayar.markup, product_prabayars.price) AS final_price')
+                    DB::raw('COALESCE(product_prabayars.price + markup_prabayars.markup, product_prabayars.price) AS final_price')
                 )
                 ->when($productCode, function ($query, $productCode) {
                     return $query->where('product_prabayars.product_code', 'LIKE', "$productCode%");
@@ -156,7 +156,7 @@ class ProductController extends Controller
                     return $query->where('product_prabayars.category_id', $categoryId);
                 })
                 // Menambahkan pengurutan berdasarkan final_price
-                ->orderBy(DB::raw('COALESCE(product_prabayars.price + markups_prabayar.markup, product_prabayars.price)'), 'asc')
+                ->orderBy(DB::raw('COALESCE(product_prabayars.price + markup_prabayars.markup, product_prabayars.price)'), 'asc')
                 ->get();
 
             // Query produk pascabayar dengan kondisi opsional

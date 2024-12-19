@@ -110,21 +110,6 @@ class UserController extends Controller
 
     /**
      * 
-     * Show data Member
-     * 
-     */
-    public function showMember(Request $request)
-    {
-        try {
-            $user = $request->user();
-            return new PostResource(true, 'Data User Ditemukan', $user);
-        } catch (\Exception $e) {
-            return new PostResource(false, 'Gagal Mengambil Data User', $e->getMessage());
-        }
-    }
-
-    /**
-     * 
      * Update Data User Member
      * 
      */

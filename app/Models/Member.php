@@ -6,10 +6,14 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class member extends Authenticatable
+class Member extends Authenticatable
 {
 
+
+
     use HasApiTokens, Notifiable;
+
+    protected $table = 'members';
     protected $fillable = [
         'email',
         'password',

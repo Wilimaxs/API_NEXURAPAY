@@ -27,7 +27,8 @@ class MarkupController extends Controller
         try {
             // Mencari markup berdasarkan kode dari request
             $markup = Markup_prabayar::where('kode', $request->kode)->firstOrFail();
-            $markup->update($request->all());
+            $markup->update(['markup' => $request->markup_harga]);
+
 
             return response()->json([
                 'status' => 'success',
@@ -59,7 +60,8 @@ class MarkupController extends Controller
         try {
             // Mencari markup berdasarkan kode dari request
             $markup = Markup_pascabayar::where('kode', $request->kode)->firstOrFail();
-            $markup->update($request->all());
+            $markup->update(['markup' => $request->markup_harga]);
+
 
             return response()->json([
                 'status' => 'success',
