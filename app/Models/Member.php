@@ -8,9 +8,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Member extends Authenticatable
 {
-
-
-
     use HasApiTokens, Notifiable;
 
     protected $table = 'members';

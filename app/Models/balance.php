@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class balance extends Model
+class Balance extends Model
 {
+    protected $table = 'balances';
+
     protected $fillable = ['user_id', 'amount'];
     protected $hidden = ['created_at', 'update_at'];
 
