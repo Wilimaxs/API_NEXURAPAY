@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\balance;
 use App\Models\transaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -29,8 +30,6 @@ class TrxController extends Controller
             'product_code' => 'required|string',
             'hjual' => 'required',
             'adm' => 'sometimes',
-            'fr_balancejual' => 'sometimes',
-            'last_balancejual' => 'sometimes',
         ]);
 
         // check validator id fails
@@ -56,17 +55,31 @@ class TrxController extends Controller
                     'message' => 'No HP tidak cocok dengan akun yang terautentikasi'
                 ], 403); // 403 Forbidden
             }
+            $balance = Balance::where('user_id', $user->id)->first();
 
-            // Create user
-            $transaction = transaction::create([
+            if (!$balance) {
+                return new PostResource(false, 'Balance not found', null);
+            }
+
+            $amount = $balance->amount;
+
+            if (intval($amount)  < intval($request->hjual)) {
+                return new PostResource(false, 'Saldo Tidak Cukup', $amount);
+            }
+
+            // for last_balancejual
+            $last_balancejual = $amount - floatval($request->hjual);
+
+            // Create transaction
+            $transaction = Transaction::create([
                 'no_hp' => $request->no_hp,
                 'reff' => $request->reff,
                 'custno' => $request->custno,
                 'product_code' => $request->product_code,
                 'hjual' => $request->hjual,
                 'adm' => $request->adm,
-                'fr_balancejual' => $request->fr_balancejual,
-                'last_balancejual' => $request->last_balancejual,
+                'fr_balancejual' => $amount, // Gunakan langsung $amount
+                'last_balancejual' => $last_balancejual,
             ]);
 
             return new PostResource(true, 'Harap Menunggu Pembelian', $transaction);

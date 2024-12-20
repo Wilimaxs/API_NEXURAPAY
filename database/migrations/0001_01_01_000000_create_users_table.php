@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('name');
-            $table->string('hp');
+            $table->string('hp')->unique();
             $table->string('address');
             $table->string('key_reseller');
             $table->string('no_rekening');
@@ -46,7 +46,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('name');
-            $table->string('phone')->nullable();
+            $table->string('phone')->unique();
             $table->text('address')->nullable();
             $table->timestamps();
         });

@@ -67,15 +67,15 @@ class AuthController extends Controller
 
             ]);
 
-            // create token
-            $tokenResult = $user->createToken('auth_token');
-            $token = $tokenResult->plainTextToken;
-            // set expires_at manually
-            $tokenResult->accessToken->expires_at = now()->addMinutes(config('sanctum.expiration'));
-            $tokenResult->accessToken->save();
+            // // create token
+            // $tokenResult = $user->createToken('auth_token');
+            // $token = $tokenResult->plainTextToken;
+            // // set expires_at manually
+            // $tokenResult->accessToken->expires_at = now()->addMinutes(config('sanctum.expiration'));
+            // $tokenResult->accessToken->save();
 
             // return response or resouce
-            return new AuthResource(true, 'Data Akun Berhasil DItambahkan', $token, $user);
+            return new AuthResource(true, 'Data Akun Berhasil DItambahkan', null, null);
         } catch (\Exception $e) {
             if (isset($ktpPath)) Storage::disk('public')->delete($ktpPath);
             if (isset($selfiePath)) Storage::disk('public')->delete($selfiePath);
@@ -143,7 +143,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:members,email,',
             'password' => 'required|min:10',
             'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
             'address' => 'nullable|string'
         ]);
         // check validator if fails
@@ -162,15 +162,15 @@ class AuthController extends Controller
                 'address' => $request->address,
             ]);
 
-            // create token
-            $tokenResult = $user->createToken('auth_token');
-            $token = $tokenResult->plainTextToken;
-            // set expires_at manually
-            $tokenResult->accessToken->expires_at = now()->addMinutes(config('sanctum.expiration'));
-            $tokenResult->accessToken->save();
+            // // create token
+            // $tokenResult = $user->createToken('auth_token');
+            // $token = $tokenResult->plainTextToken;
+            // // set expires_at manually
+            // $tokenResult->accessToken->expires_at = now()->addMinutes(config('sanctum.expiration'));
+            // $tokenResult->accessToken->save();
 
             // return response or resouce
-            return new AuthResource(true, 'Data Akun Berhasil DItambahkan', $token, $user);
+            return new AuthResource(true, 'Data Akun Berhasil DItambahkan', null, null);
         } catch (\Exception $e) {
             if (isset($ktpPath)) Storage::disk('public')->delete($ktpPath);
             if (isset($selfiePath)) Storage::disk('public')->delete($selfiePath);
