@@ -265,4 +265,61 @@ class TrxController extends Controller
             ], 500);
         }
     }
+
+    public function checkTransactionUser(Request $request)
+    {
+        try {
+            // Get authenticated user
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized access'
+                ], 401);
+            }
+
+            $hp = $user->hp;
+
+
+            // Get transactions using Query Builder with proper error handling
+            $transactions = Transaction::selectRaw('
+            CASE 
+                WHEN product_prabayars.product_code IS NOT NULL THEN product_prabayars.name
+                ELSE product_pascabayars.name
+            END AS product_name,
+            transactions.hjual,
+            transactions.status,
+            DATE(transactions.created_at) AS created_at
+        ')
+                ->join('users', 'transactions.no_hp', '=', 'users.hp')
+                ->leftJoin('product_prabayars', 'transactions.product_code', '=', 'product_prabayars.product_code')
+                ->leftJoin('product_pascabayars', 'transactions.product_code', '=', 'product_pascabayars.product_code')
+                ->where('transactions.no_hp', '=', $hp)  // Menggunakan nomor HP dari token
+                ->where(function ($query) {
+                    $query->whereNotNull('product_prabayars.product_code')
+                        ->orWhereNotNull('product_pascabayars.product_code');
+                })
+                ->get();
+
+
+            if ($transactions->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => 'Belum Terdapat Transaksi'
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $transactions
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan dalam mengambil data transaksi',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

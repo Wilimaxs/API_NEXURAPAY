@@ -40,6 +40,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/transaction', [TrxController::class, 'transaction']);
         Route::post('/products/markup/prabayar', [MarkupController::class, 'updatePrabayar']);
         Route::post('/products/markup/pascabayar', [MarkupController::class, 'updatePascabayar']);
+        Route::get('/check', [TrxController::class, 'checkTransactionUser']);
     });
     Route::post('callback', [TrxController::class, 'handle']);
 });
