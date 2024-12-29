@@ -44,5 +44,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/check', [TrxController::class, 'checkTransactionUser']);
         Route::post('/topup/create', [TopUpController::class, 'createTransaction']);
     });
+    Route::post('callback/midtrans', [TopUpController::class, 'handle']);
     Route::post('callback', [TrxController::class, 'handle']);
 });

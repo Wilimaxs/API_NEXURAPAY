@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use App\Models\callback_midtran;
 
 class TopUpController extends Controller
 {
@@ -80,7 +81,7 @@ class TopUpController extends Controller
             if ($response->successful()) {
                 // Store transaction in database
                 $transaction = Topup::create([
-                    'hp' => $user->id,
+                    'hp' => $request->phone,
                     'order_id' => $request->order_id,
                     'amount' => $request->gross_amount,
                     'status' => 'pending',
@@ -120,6 +121,52 @@ class TopUpController extends Controller
                 'status' => 'error',
                 'message' => 'An error occurred while processing the transaction',
                 'debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+
+
+    public function handle(Request $request)
+    {
+        try {
+            $notification = $request->all();
+
+            // Verify signature key
+            $signatureKey = $notification['signature_key'] ?? '';
+            $orderId = $notification['order_id'] ?? '';
+            $statusCode = $notification['status_code'] ?? '';
+            $grossAmount = $notification['gross_amount'] ?? '';
+            $serverKey = config('midtrans.server_key');
+
+            $mySignatureKey = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
+
+            if ($signatureKey !== $mySignatureKey) {
+                throw new \Exception('Invalid signature key');
+            }
+
+            // Create callback record
+            callback_midtran::create([
+                'order_id' => $orderId,
+                'transaction_status' => $notification['transaction_status'] ?? null,
+                'status_code' => $statusCode,
+                'gross_amount' => $grossAmount,
+                'payment_type' => $notification['payment_type'] ?? null,
+                'transaction_id' => $notification['transaction_id'] ?? null,
+                'fraud_status' => $notification['fraud_status'] ?? null,
+                'raw_response' => $notification
+            ]);
+
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Callback Error: ' . $e->getMessage(), [
+                'request' => $request->all(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
             ], 500);
         }
     }
