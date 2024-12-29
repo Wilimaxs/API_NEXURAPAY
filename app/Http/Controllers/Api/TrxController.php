@@ -216,7 +216,7 @@ class TrxController extends Controller
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new Exception('JSON decode error: ' . json_last_error_msg());
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('JSON Parse Error: ' . $e->getMessage());
                 return response()->json([
                     'success' => false,
@@ -252,7 +252,7 @@ class TrxController extends Controller
             $transaction->update(['status' => $status]);
 
             return response()->json(['success' => true]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Tripay Callback Error: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
