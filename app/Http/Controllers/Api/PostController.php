@@ -220,11 +220,11 @@ class PostController extends Controller
             $response = [
                 'status' => 'success',
                 'data' => [
-                    'pengeluaran' => $transactionData[0]->Pengeluaran ?? 0,
+                    'pengeluaran' => $transactionData[0]->Pengeluaran ?? "0",
                     'penghasilan' => ($transactionData[0]->penghasilan_Prabayar ?? 0) +
                         ($transactionData[0]->penghasilan_pascabayar ?? 0),
-                    'pembelian' => $topupData[0]->pembelian ?? 0,
-                    'penghematan' => $penghematanData[0]->Penghematan ?? 0
+                    'pembelian' => $topupData[0]->pembelian ?? "0",
+                    'penghematan' => $penghematanData[0]->Penghematan ?? "0"
                 ]
             ];
 

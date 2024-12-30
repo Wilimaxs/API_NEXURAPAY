@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -144,6 +146,54 @@ class UserController extends Controller
             return new PostResource(true, 'Update Data Berhasil', $user);
         } catch (\Exception $e) {
             return new PostResource(false, 'Gagal Update Data', $e->getMessage());
+        }
+    }
+
+
+    public function deleteAccount(Request $request)
+    {
+
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User tidak ditemukan'
+                ], 404);
+            }
+
+            // Hapus personal access tokens
+            DB::table('personal_access_tokens')
+                ->where('tokenable_id', $user->id)
+                ->where('tokenable_type', get_class($user))
+                ->delete();
+
+            // hapus user
+            DB::table('users')
+                ->where('id', $user->id)
+                ->delete();
+
+            // hapus money 
+            DB::table('balances')
+                ->where('user_id', $user->id)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Akun berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus akun',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
     }
 }
