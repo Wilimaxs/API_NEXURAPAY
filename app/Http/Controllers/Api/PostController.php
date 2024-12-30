@@ -203,17 +203,21 @@ class PostController extends Controller
             $penghematanData = DB::select(
                 "
                 SELECT 
-                    (SELECT COALESCE(sum(transactions.hjual),0) 
-                     FROM transactions 
-                     WHERE MONTH(transactions.created_at) = ?
-                     AND YEAR(transactions.created_at) = ?) -
-                    (SELECT COALESCE(sum(transactions.hjual),0) 
-                     FROM transactions 
-                     WHERE MONTH(transactions.created_at) = ?
-                     AND YEAR(transactions.created_at) = ?) AS Penghematan
+                (SELECT COALESCE(sum(transactions.hjual),0) 
+                FROM transactions, users 
+                WHERE MONTH(transactions.created_at) = ?
+                AND YEAR(transactions.created_at) = ?
+                AND transactions.no_hp = users.hp 
+                AND transactions.no_hp = ?) -
+                (SELECT COALESCE(sum(transactions.hjual),0) 
+                FROM transactions, users 
+                WHERE MONTH(transactions.created_at) = ?
+                AND YEAR(transactions.created_at) = ?
+                AND transactions.no_hp = users.hp 
+                AND transactions.no_hp = ?) AS Penghematan
                 FROM transactions 
                 LIMIT 1",
-                [$currentMonth, $currentYear, $currentMonth - 1, $currentYear]
+                [$currentMonth, $currentYear, $user->hp, $currentMonth - 1, $currentYear, $user->hp]
             );
 
             // Combine all data
