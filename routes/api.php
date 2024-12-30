@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MarkupController;
+use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\TopUpController;
 use App\Http\Controllers\Api\TrxController;
@@ -43,6 +44,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/products/markup/pascabayar', [MarkupController::class, 'updatePascabayar']);
         Route::get('/check', [TrxController::class, 'checkTransactionUser']);
         Route::post('/topup/create', [TopUpController::class, 'createTransaction']);
+        Route::get('/transaction-summary', [PostController::class, 'getTransactionSummary']);
     });
     Route::post('callback/midtrans', [TopUpController::class, 'handle']);
     Route::post('callback', [TrxController::class, 'handle']);
