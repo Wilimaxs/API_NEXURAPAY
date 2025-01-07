@@ -113,6 +113,16 @@ class TrxController extends Controller
 
         try {
 
+            $user = Auth::user();
+
+            // Pengecekan jika no_hp tidak sama
+            if ($user->phone != $request->no_hp) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No HP tidak cocok dengan akun yang terautentikasi'
+                ], 403); // 403 Forbidden
+            }
+
             // Create transaction
             $transaction = Transaction::create([
                 'no_hp' => $request->no_hp,
