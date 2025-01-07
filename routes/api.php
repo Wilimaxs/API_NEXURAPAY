@@ -40,6 +40,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/sync/product/pascabayar', [ProductController::class, 'productPascabayar']);
         Route::post('/sync/product/search', [ProductController::class, 'showData']);
         Route::post('/transaction', [TrxController::class, 'transaction']);
+        Route::post('/khusus/member', [TrxController::class, 'transactionMember']);
         Route::post('/products/markup/prabayar', [MarkupController::class, 'updatePrabayar']);
         Route::post('/products/markup/pascabayar', [MarkupController::class, 'updatePascabayar']);
         Route::get('/check', [TrxController::class, 'checkTransactionUser']);

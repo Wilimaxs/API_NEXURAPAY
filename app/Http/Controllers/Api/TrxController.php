@@ -88,6 +88,49 @@ class TrxController extends Controller
         }
     }
 
+    /**
+     * Summary of transactionMember
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|PostResource|\Illuminate\Http\JsonResponse
+     */
+    public function transactionMember(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'no_hp' => 'required|string',
+            'reff' => 'required|string',
+            'custno' => 'required|string',
+            'product_code' => 'required|string',
+            'hjual' => 'required',
+            'adm' => 'sometimes',
+            'fr_balancejual' => 'required', //current amount
+            'last_balancejual' => 'required', //result amount after change with hjual
+        ]);
+
+        // check validator id fails
+        if ($validator->fails()) {
+            return Response()->json($validator->errors(), 422);
+        }
+
+        try {
+
+            // Create transaction
+            $transaction = Transaction::create([
+                'no_hp' => $request->no_hp,
+                'reff' => $request->reff,
+                'custno' => $request->custno,
+                'product_code' => $request->product_code,
+                'hjual' => $request->hjual,
+                'adm' => $request->adm,
+                'fr_balancejual' => $request->fr_balancejual,
+                'last_balancejual' => $request->last_balancejual,
+            ]);
+
+            return new PostResource(true, 'Harap Menunggu Pembelian', $transaction);
+        } catch (Exception $e) {
+            return new PostResource(false, 'Gagal Transaksi', $e->getMessage());
+        }
+    }
+
 
     /**
      * Summary of handleCallback
